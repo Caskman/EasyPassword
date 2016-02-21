@@ -19,22 +19,20 @@ angular.module('EasyDiceWare', [])
     $scope.passLength = 4;
     var POINTS_PER_WORD = 25;
     var _dicewareList = {};
-    var _
+    var _keyboardData = {};
 
     $scope.init = function() {
-        
-        // $http.get('/diceware-standard.txt').then(function(response) {
-        //     $scope.dicewareList = response.data;
-        // });
 
         _checkQuota().then(function(quota) {
             return _promise(function(resolve, reject) {
                 if (quota >= POINTS_PER_WORD * $scope.passLength) {
                     $q.all({
                         nums: _getNums(5 * $scope.passLength),
-                        dicewareList: _getDicewareList()
+                        dicewareList: _getDicewareList(),
+                        keyboardData: _getKeyboardData()
                     }).then(function(results) {
                         _dicewareList = results.dicewareList;
+                        _keyboardData = results.keyboardData;
                         resolve(results.nums);
                     });
                 } else {
@@ -44,6 +42,12 @@ angular.module('EasyDiceWare', [])
         }).then(_mapNums).then(function(words) {
             $scope.words = words;
             $scope.areWordsReady = true;
+        });
+    }
+
+    var _getKeyboardData = function() {
+        return $http.get('keyboard_data.js').then(function(response) {
+            return response.data;
         });
     }
 
