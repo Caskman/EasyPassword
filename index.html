@@ -11,8 +11,10 @@
                 <!-- <div ng-hide="areWordsReady">Loading...</div>
                 <div ng-show="areWordsReady"> -->
                 <div>
-                    {{words}}
-                    <div ng-repeat="word in words">{{word}}</div>
+                    <div ng-repeat="password in passwords | orderBy: '-score'" style="border: 1px solid black">
+                        <div>Score: {{password.score}}</div>
+                        <div ng-repeat="word in password.words" style="display: inline-block; margin:5px">{{word}}</div>
+                    </div>
                     
                 </div>
 
