@@ -17,7 +17,7 @@ angular.module('EasyDiceWare', [])
     $scope.quota = 0;
     $scope.words = [];
     $scope.passwordWordLength = 4;
-    $scope.numPasswords = 20;
+    $scope.numPasswords = 1000;
     $scope.useRandomOrg = false;
     var POINTS_PER_WORD = 25;
     var POINTS_PER_NUM = 5;
@@ -157,13 +157,13 @@ angular.module('EasyDiceWare', [])
                         var prev = _keyboardData[l[i - 1]];
                         var cur = _keyboardData[l[i]];
                         if (!_isSameHand(prev, cur)) {
-                            score += 1;
+                            score += 0;
                         } else {
                             if (_isSameRow(prev, cur)) {
                                 score += -2;
                             }
                             if (_isSameFinger(prev, cur)) {
-                                score += -3;
+                                score += -5;
                             }
                         }
 
@@ -173,6 +173,10 @@ angular.module('EasyDiceWare', [])
                             } else {
                                 score += -1;
                             }
+                        }
+
+                        if (_isShiftKey(cur)) {
+                            score += -5;
                         }
 
                         return score + sum;
@@ -185,6 +189,10 @@ angular.module('EasyDiceWare', [])
 
             resolve(passwords);
         });
+    }
+
+    var _isShiftKey = function(c) {
+        return c.shift;
     }
 
     var _isNumberRow = function(c) {
