@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <script src="angular.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="styles.css">
+    </head>
+    <body>
+        <div ng-app="EasyDiceWare">
+            <div ng-controller="MainController" ng-init="init()">
+                <!-- <div ng-hide="areWordsReady">Loading...</div>
+                <div ng-show="areWordsReady"> -->
+                <div>
+                    <div ng-repeat="password in passwords | orderBy: '-score'" style="border: 1px solid black">
+                        <div>Score: {{password.score}}</div>
+                        <div ng-repeat="word in password.words" style="display: inline-block; margin:5px">{{word}}</div>
+                    </div>
+                    
+                </div>
+
+                <div>Quota: {{quota}}</div>
+            </div>
+        </div>
+        <script src="underscore-min.js"></script>
+        <script src="script.js"></script>
+    </body>
+</html>
