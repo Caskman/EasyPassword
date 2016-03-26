@@ -3,24 +3,57 @@
     <head>
         <title></title>
         <script src="angular.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="normalize.css">
+        <link rel="stylesheet" type="text/css" href="skeleton.css">
         <link rel="stylesheet" type="text/css" href="styles.css">
     </head>
     <body>
-        <div ng-app="EasyDiceWare">
+        <div ng-app="EasyDiceWare" class="main-container" ng-cloak>
             <div ng-controller="MainController" ng-init="init()">
-                <!-- <div ng-hide="areWordsReady">Loading...</div>
-                <div ng-show="areWordsReady"> -->
-                <div>
-                    <div ng-repeat="password in passwords | orderBy: '-score'" style="border: 1px solid black">
-                        <div>Score: {{password.score}}</div>
-                        <div ng-repeat="word in password.words" style="display: inline-block; margin:5px">{{word}}</div>
+                <div ng-show="calculating" class="main-loading-block">
+                    <div class="spinner-container">
+                        <div class="cs-loader">
+                          <div class="cs-loader-inner">
+                            <label>&#9679;</label>
+                            <label>&#9679;</label>
+                            <label>&#9679;</label>
+                            <label>&#9679;</label>
+                            <label>&#9679;</label>
+                            <label>&#9679;</label>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="container content-container" ng-hide="calculating">
+                    <div class="row">
+                        <div class="nine columns">&nbsp;</div>
+                        <div class="three columns">
+                            <div ng-show="o.showSpaces">
+                                <input type="checkbox" ng-model="spaces"/> Spaces
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row word-container">
+                        <div class="twelve columns results-holder">
+                            <div class="row result-row" ng-repeat="password in passwords | orderBy: '-score' track by $index" ng-hide="!$first && !showMore">
+                                <div class="three columns">&nbsp;</div>
+                                <div class="six columns text-center">
+                                    {{ password.words.join(" ") }}
+                                </div>
+                                <div class="three columns text-right" ng-show="showMore">Score: {{password.score}}</div>
+                            </div>
+                            <div class="row more-results" ng-show="!showMore">
+                                <div class="twelve columns text-center">
+                                    <span ng-click="showMore = true;" class="more-results-span">More</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                 </div>
-
-                <div>Quota: {{quota}}</div>
             </div>
         </div>
+        <script src="jquery-2.2.2.min.js"></script>
         <script src="underscore-min.js"></script>
         <script src="script.js"></script>
     </body>
