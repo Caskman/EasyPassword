@@ -11,23 +11,6 @@ if (!String.prototype.format) {
   };
 }
 
-var selectText = function (obj) {
-
-    var range, selection;
-
-    if (window.getSelection) {
-      selection = window.getSelection();
-      range = document.createRange();
-      range.selectNodeContents(obj);
-      selection.removeAllRanges();
-      selection.addRange(range);
-    } else if (document.body.createTextRange) {
-      range = document.body.createTextRange();
-      range.moveToElementText(obj);
-      range.select();
-    }
-};
-
 angular.module('EasyDiceWare', [])
 .controller('MainController', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
 
@@ -37,7 +20,6 @@ angular.module('EasyDiceWare', [])
     $scope.numPasswords = 1000;
     $scope.useRandomOrg = false;
     $scope.calculating = false;
-    $scope.o = {};
     var POINTS_PER_WORD = 25;
     var POINTS_PER_NUM = 5;
     var _dicewareList = {};
@@ -50,9 +32,7 @@ angular.module('EasyDiceWare', [])
         .then(function(passwords) {
             $scope.passwords = passwords;
             $scope.areWordsReady = true;
-            $timeout(function() {
-                $scope.calculating = false;
-            }, 1000);
+            $scope.calculating = false;
         });
 
     }
