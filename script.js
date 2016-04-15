@@ -20,6 +20,7 @@ angular.module('EasyDiceWare', [])
     $scope.numPasswords = 1000;
     $scope.useRandomOrg = false;
     $scope.calculating = false;
+    $scope.listSize = 0;
     var POINTS_PER_WORD = 25;
     var POINTS_PER_NUM = 5;
     var _dicewareList = {};

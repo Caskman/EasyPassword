@@ -33,16 +33,16 @@
                     </div>
                     <div class="row word-container">
                         <div class="twelve columns results-holder">
-                            <div class="row result-row" ng-repeat="password in passwords | orderBy: '-score' track by $index" ng-hide="!$first && !showMore">
-                                <div class="three columns">&nbsp;</div>
-                                <div class="six columns text-center">
+                            <div class="row result-row" ng-repeat="password in passwords | orderBy: '-score' track by $index" ng-show="$first || (showMore && $index < listSize) ">
+                                <div class="three columns" ng-show="!showMore">&nbsp;</div>
+                                <div class="columns" ng-class="{'six text-center': !showMore, 'seven text-left': showMore}">
                                     {{ password.words.join(" ") }}
                                 </div>
-                                <div class="three columns text-right" ng-show="showMore">Score: {{password.score}}</div>
+                                <div class="columns text-right" ng-show="showMore" ng-class="{'four': showMore, 'three': !showMore}">Score: {{password.score}}</div>
                             </div>
-                            <div class="row more-results" ng-show="!showMore">
+                            <div class="row more-results">
                                 <div class="twelve columns text-center">
-                                    <span ng-click="showMore = true;" class="more-results-span">More</span>
+                                    <span ng-click="showMore = true; listSize = listSize + 20;" class="more-results-span">More</span>
                                 </div>
                             </div>
                         </div>
