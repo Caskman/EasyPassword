@@ -18,24 +18,50 @@ angular.module('EasyDiceWare', [])
     $scope.words = [];
     $scope.passwordWordLength = 4;
     $scope.numPasswords = 1000;
-    $scope.useRandomOrg = false;
     $scope.calculating = false;
     $scope.listSize = 0;
-    var POINTS_PER_WORD = 25;
-    var POINTS_PER_NUM = 5;
+    $scope.useOriginalDicewareSource = false;
+    $scope.weights = {
+        sameHand: 0,
+        sameRow: -2,
+        sameFinger: -5,
+        numberRow: -2,
+        homeRow: -1,
+        requiresShift: -5,
+    };
     var _dicewareList = {};
     var _keyboardData = {};
 
     $scope.init = function() {
-
         $scope.calculating = true;
-        _checkQuota().then(_fetchData).then(_mapNumsToPasswords).then(_scorePasswords)
-        .then(function(passwords) {
-            $scope.passwords = passwords;
-            $scope.areWordsReady = true;
+        _calculatePasswords().then(function() {
             $scope.calculating = false;
         });
+    }
 
+    var _calculatePasswords = function() {
+        var error = function(message) {
+            return _promise(function(resolve, reject) {
+                reject(message);
+            });
+        }
+
+        return _checkQuota().then(_fetchData, error)
+            .then(_mapNumsToPasswords, error)
+            .then(_scorePasswords, error)
+            .then(function(passwords) {
+                $scope.passwords = passwords;
+                $scope.areWordsReady = true;
+            }, error);
+    }
+
+    $scope.recalculate = function() {
+        $scope.recalculating = true;
+        _calculatePasswords().then(function() {
+            $scope.recalculating = false;
+        }, function(message) {
+            $scope.errorMessage = message;
+        });
     }
 
     var _checkQuota = function() {
@@ -48,14 +74,11 @@ angular.module('EasyDiceWare', [])
     }
 
     var _fetchData = function(quota) {
+        console.log('_fetchData');
         var numPromise = null;
         var numNums = $scope.passwordWordLength * $scope.numPasswords * 5;
 
-        if ($scope.useRandomOrg && quota >= POINTS_PER_WORD * $scope.passwordWordLength) {
-            numPromise = _getRandomOrgNums(numNums);
-        } else {
-            numPromise = _getPsuedoRandomNums(numNums);
-        }
+        numPromise = _getDicewareNums(quota, numNums);
 
         return $q.all({
             nums: numPromise,
@@ -69,6 +92,7 @@ angular.module('EasyDiceWare', [])
     }
 
     var _mapNumsToPasswords = function(nums) {
+        console.log('_mapNumsToPasswords');
         return _promise(function(resolve, reject) {
             var current = '';
             var wordNums = [];
@@ -115,7 +139,10 @@ angular.module('EasyDiceWare', [])
 
     var _getDicewareList = function() {
         return _promise(function(resolve, reject) {
-            $http.get('diceware-standard.txt').then(function(response) {
+            var dicewareSource = "alternate-diceware-list.txt";
+            if ($scope.useOriginalDicewareSource)
+                dicewareSource = "diceware-standard.txt";
+            $http.get(dicewareSource).then(function(response) {
                 var data = response.data;
                 var rows = data.split('\n');
                 var list = _.reduce(rows, function(m, r) {
@@ -124,34 +151,42 @@ angular.module('EasyDiceWare', [])
                     return m;
                 }, {});
                 resolve(list);
+            }, function() {
+                reject('fetching diceware list failed');
             });
         }); 
     }
 
-    var _getPsuedoRandomNums = function(numNums) {
-        return _promise(function(resolve, reject) {
-            var nums = _.chain(_.range(numNums))
-                .map(function() {
-                    return Math.floor(Math.random() * 6 + 1);
-                }).value();
-            resolve(nums);
-        });
+    var _generateDicewareNums = function(numNums) {
+        var nums = _.chain(_.range(numNums))
+            .map(function() {
+                return Math.floor(Math.random() * 6 + 1);
+            }).value();
+        return nums;
     }
 
-    var _getRandomOrgNums = function(numNums) {
-        return $http.get(_getRNGUrl(numNums)).then(function(response) {
-            var d = response.data;
-            return _.map(d.split('\n').slice(0,-1), function(e) {
-                return parseInt(e);
+    var _getDicewareNums = function(quota, numNums) {
+        if (quota >= 500) {
+            return $http.get(_getRNGUrl()).then(function(response) {
+                var seed = response.data.trim();
+                Math.seedrandom(seed);
+                dicewareNums = _generateDicewareNums(numNums);
+                return dicewareNums;
             });
-        });
+        } else {
+            // error: say something about not using true randomness
+            return _promise(function(resolve, reject) {
+                resolve(_generateDicewareNums(numNums));
+            });
+        }
     }
 
     var _getRNGUrl = function(num) {
-        return 'https://www.random.org/integers/?num={0}&min=1&max=6&col=1&base=10&format=plain&rnd=new'.format(num);
+        return 'https://www.random.org/integers/?num=1&min=100000000&max=999999999&col=1&base=10&format=plain&rnd=new';
     }
 
     var _scorePasswords = function(passwords) {
+        console.log('_scorePasswords');
         return _promise(function(resolve, reject) {
             _.each(passwords, function(password) {
                 var whole = password.words.join('');
@@ -161,26 +196,26 @@ angular.module('EasyDiceWare', [])
                         var prev = _keyboardData[l[i - 1]];
                         var cur = _keyboardData[l[i]];
                         if (!_isSameHand(prev, cur)) {
-                            score += 0;
+                            score += $scope.weights.sameHand; // 0
                         } else {
                             if (_isSameRow(prev, cur)) {
-                                score += -2;
+                                score += $scope.weights.sameRow; // -2
                             }
                             if (_isSameFinger(prev, cur)) {
-                                score += -5;
+                                score += $scope.weights.sameFinger; // -5
                             }
                         }
 
                         if (!_isHomeRow(cur)) {
                             if (_isNumberRow(cur)) {
-                                score += -2;
+                                score += $scope.weights.numberRow; // -2
                             } else {
-                                score += -1;
+                                score += $scope.weights.homeRow; // -1
                             }
                         }
 
                         if (_isShiftKey(cur)) {
-                            score += -5;
+                            score += $scope.weights.requiresShift; // -5
                         }
 
                         return score + sum;

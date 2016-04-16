@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title></title>
+        <title>Easy Passwords</title>
         <script src="angular.min.js"></script>
         <link rel="stylesheet" type="text/css" href="normalize.css">
         <link rel="stylesheet" type="text/css" href="skeleton.css">
@@ -10,6 +10,9 @@
     <body>
         <div ng-app="EasyDiceWare" class="main-container" ng-cloak>
             <div ng-controller="MainController" ng-init="init()">
+                <div class="text-center">
+                    <h1 class="title" ng-hide="showMore">Easy Passwords</h1>
+                </div>
                 <div ng-show="calculating" class="main-loading-block">
                     <div class="spinner-container">
                         <div class="cs-loader">
@@ -25,12 +28,6 @@
                     </div>
                 </div>
                 <div class="container content-container" ng-hide="calculating">
-                    <div class="row">
-                        <div class="nine columns">&nbsp;</div>
-                        <div class="three columns">
-                            &nbsp;
-                        </div>
-                    </div>
                     <div class="row word-container">
                         <div class="twelve columns results-holder">
                             <div class="row result-row" ng-repeat="password in passwords | orderBy: '-score' track by $index" ng-show="$first || (showMore && $index < listSize) ">
@@ -42,17 +39,76 @@
                             </div>
                             <div class="row more-results">
                                 <div class="twelve columns text-center">
-                                    <span ng-click="showMore = true; listSize = listSize + 20;" class="more-results-span">More</span>
+                                    <span ng-click="showMore = true; listSize = listSize + 20;" class="more-results-span btn">More</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
+                </div>
+                <div class="right-panel panel" ng-show="showMore">
+                    <h5 class="weights-header">Weights</h5>
+                    <div class="weights borders">
+                        <div class="row">
+                            <div class="text-left columns six">Same Hand</div>
+                            <div class="text-right columns six">
+                                <input type="text" ng-model="weights.sameHand"/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="text-left columns six">Same Row</div>
+                            <div class="text-right columns six">
+                                <input type="text" ng-model="weights.sameRow"/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="text-left columns six">Same Finger</div>
+                            <div class="text-right columns six">
+                                <input type="text" ng-model="weights.sameFinger"/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="text-left columns six">Number Row</div>
+                            <div class="text-right columns six">
+                                <input type="text" ng-model="weights.numberRow"/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="text-left columns six">Home Row</div>
+                            <div class="text-right columns six">
+                                <input type="text" ng-model="weights.homeRow"/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="text-left columns six">Requires Shift</div>
+                            <div class="text-right columns six">
+                                <input type="text" ng-model="weights.requiresShift"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="left-panel panel" ng-show="showMore">
+                    <div class="content">
+                        <div>
+                            <label for="source1">
+                                <input id="source1" type="radio" name="diceware-source" ng-model="useOriginalDicewareSource" ng-value="false"/> Use Preferred Diceware List
+                            </label>
+                        </div>
+                        <div>
+                            <label for="source2">
+                                <input id="source2" type="radio" name="diceware-source" ng-model="useOriginalDicewareSource" ng-value="true"/> Use Original Diceware List
+                            </label>
+                        </div>
+                        <div>
+                            <span class="btn" ng-click="recalculate()">Generate</span>
+                        </div>
+                        <div ng-show="recalculating">Calculating...</div>
+                    </div>
                 </div>
             </div>
         </div>
         <script src="jquery-2.2.2.min.js"></script>
         <script src="underscore-min.js"></script>
+        <script src="seedrandom.js"></script>
         <script src="script.js"></script>
     </body>
 </html>
