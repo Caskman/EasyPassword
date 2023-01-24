@@ -1,3 +1,3 @@
 Easy Diceware Passwords
 
-TODO: describe the keyboard data format
+A tool to easily create passwords
